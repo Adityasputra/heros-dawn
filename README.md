@@ -31,7 +31,7 @@ This project simulates the feel of a classic RPG with a title screen, character 
 Clone this repository:
 
 ```bash
-git clone https://github.com/username/heros-dawn.git
+git clone https://github.com/Adityasputra/heros-dawn.git
 cd heros-dawn
 ```
 
