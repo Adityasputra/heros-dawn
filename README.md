@@ -7,7 +7,7 @@ This project simulates the feel of a classic RPG with a title screen, character 
 
 ## 🚀 Demo
 
-[Live Demo](#) <!-- (isi link GitHub Pages atau Vercel kalau sudah deploy) -->
+[Live Demo](#)
 
 ---
 
@@ -55,7 +55,6 @@ npx serve
 
 ## 📸 Screenshots
 
-*(tambahkan gambar UI di sini, misalnya: `assets/screenshots/hero-dawn-ui.png`)*
 
 ---
 
