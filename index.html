@@ -7,9 +7,34 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <!-- Background -->
     <div class="bg-scene">
       <div class="starfield" id="starfield"></div>
     </div>
+
+    <!-- Header -->
+    <header class="title-screen fade-in" role="banner">
+      <h1 class="game-title">Hero's Dawn</h1>
+      <p class="subtitle">Press Start - Adventure Begins</p>
+
+      <div class="title-action">
+        <button
+          class="btn primary"
+          id="btnPlayMusic"
+          aria-pressed="false"
+          aria-label="Play background music"
+        >
+          &#9654; Play Music
+        </button>
+        <button
+          class="btn"
+          id="btnPauseMusic"
+          aria-label="Pause background music"
+        >
+          &#10073;&#10073; Pause
+        </button>
+      </div>
+    </header>
 
     <script src="script.js"></script>
   </body>
