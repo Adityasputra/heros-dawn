@@ -10,7 +10,7 @@
     const s = document.createElement("div");
     s.className = "star";
 
-    const size = 1 + Math.random() * 2; // 1px - 3px
+    const size = 1 + Math.random() * 2;
     s.style.width = size + "px";
     s.style.height = size + "px";
 
