@@ -119,6 +119,13 @@ const GameState = {
       completedDate: "2 days ago",
     },
   ],
+  combat: {
+    inBattle: false,
+    enemy: null,
+    playerTurn: true,
+    battleLog: [],
+    roundCount: 0,
+  },
 };
 
 // ================= LOADING SCREEN =================
@@ -213,6 +220,7 @@ class LoadingManager {
     InventoryManager.init();
     AudioManager.init();
     SettingsManager.init();
+    CombatManager.init();
   }
 }
 
@@ -1490,6 +1498,523 @@ class FooterTips {
       this.tipElement.textContent = this.tips[this.currentTip];
       this.tipElement.style.opacity = "1";
     }, 300);
+  }
+}
+
+// ================= COMBAT MANAGER =================
+class CombatManager {
+  static enemies = [
+    { id: 1, name: "Goblin Warrior", level: 10, hp: 60, maxHp: 60, attack: 12, defense: 8, exp: 75, gold: 25 },
+    { id: 2, name: "Orc Berserker", level: 14, hp: 90, maxHp: 90, attack: 18, defense: 12, exp: 120, gold: 40 },
+    { id: 3, name: "Shadow Assassin", level: 16, hp: 75, maxHp: 75, attack: 22, defense: 6, exp: 150, gold: 60 },
+    { id: 4, name: "Fire Elemental", level: 18, hp: 100, maxHp: 100, attack: 20, defense: 15, exp: 200, gold: 80 },
+    { id: 5, name: "Ancient Dragon", level: 25, hp: 200, maxHp: 200, attack: 35, defense: 25, exp: 500, gold: 200 }
+  ];
+
+  static init() {
+    this.setupEventListeners();
+    this.updateCombatDisplay();
+  }
+
+  static setupEventListeners() {
+    // Combat controls
+    document.getElementById('btnFindEnemy')?.addEventListener('click', () => this.findEnemy());
+    document.getElementById('btnFlee')?.addEventListener('click', () => this.flee());
+
+    // Combat actions
+    document.querySelectorAll('.combat-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const action = e.currentTarget.dataset.action;
+        if (action && GameState.combat.inBattle && GameState.combat.playerTurn) {
+          this.performAction(action);
+        }
+      });
+    });
+
+    // Battle result actions
+    document.getElementById('btnContinue')?.addEventListener('click', () => this.endBattle());
+    document.getElementById('btnNewBattle')?.addEventListener('click', () => {
+      this.endBattle();
+      setTimeout(() => this.findEnemy(), 500);
+    });
+  }
+
+  static findEnemy() {
+    const playerLevel = GameState.character.level;
+    const possibleEnemies = this.enemies.filter(enemy => 
+      enemy.level >= playerLevel - 3 && enemy.level <= playerLevel + 5
+    );
+
+    const enemy = possibleEnemies[Math.floor(Math.random() * possibleEnemies.length)] || this.enemies[0];
+    
+    // Create enemy instance
+    GameState.combat.enemy = {
+      ...enemy,
+      hp: enemy.maxHp // Reset HP
+    };
+
+    this.startBattle();
+  }
+
+  static startBattle() {
+    GameState.combat.inBattle = true;
+    GameState.combat.playerTurn = true;
+    GameState.combat.roundCount = 0;
+    GameState.combat.battleLog = [];
+
+    this.updateCombatDisplay();
+    this.enableCombatActions();
+    this.addLogEntry(`A wild ${GameState.combat.enemy.name} appears!`, 'system');
+    
+    // Update UI
+    document.getElementById('btnFindEnemy').disabled = true;
+    document.getElementById('btnFlee').disabled = false;
+
+    // Play battle start sound
+    SoundManager.playSfx(330, 0.1, 0.5);
+    
+    NotificationManager.show(`Battle started against ${GameState.combat.enemy.name}!`, 'warning');
+  }
+
+  static performAction(action) {
+    if (!GameState.combat.inBattle || !GameState.combat.playerTurn) return;
+
+    GameState.combat.roundCount++;
+    let actionResult = false;
+
+    switch (action) {
+      case 'attack':
+        actionResult = this.playerAttack();
+        break;
+      case 'power-attack':
+        actionResult = this.playerPowerAttack();
+        break;
+      case 'defend':
+        actionResult = this.playerDefend();
+        break;
+      case 'heal-spell':
+        actionResult = this.playerHeal();
+        break;
+      case 'fireball':
+        actionResult = this.playerFireball();
+        break;
+      case 'lightning':
+        actionResult = this.playerLightning();
+        break;
+    }
+
+    if (actionResult) {
+      this.updateCombatDisplay();
+      
+      // Check if enemy is defeated
+      if (GameState.combat.enemy.hp <= 0) {
+        this.victory();
+        return;
+      }
+
+      // Enemy turn
+      GameState.combat.playerTurn = false;
+      this.disableCombatActions();
+      
+      setTimeout(() => {
+        this.enemyTurn();
+      }, 1000);
+    }
+  }
+
+  static playerAttack() {
+    const player = GameState.character;
+    const enemy = GameState.combat.enemy;
+    
+    const damage = Math.max(1, player.stats.attack - Math.floor(enemy.defense / 2) + Math.floor(Math.random() * 10));
+    enemy.hp = Math.max(0, enemy.hp - damage);
+    
+    this.addLogEntry(`You attack ${enemy.name} for ${damage} damage!`, 'player');
+    this.showBattleEffect('⚔️');
+    this.animateAttack('player');
+    
+    SoundManager.playSfx(440, 0.08, 0.2);
+    return true;
+  }
+
+  static playerPowerAttack() {
+    const player = GameState.character;
+    
+    if (player.mp < 15) {
+      this.addLogEntry('Not enough mana for Power Strike!', 'system');
+      NotificationManager.show('Not enough mana!', 'error');
+      return false;
+    }
+
+    player.mp -= 15;
+    const enemy = GameState.combat.enemy;
+    
+    const damage = Math.max(1, (player.stats.attack * 2) - Math.floor(enemy.defense / 2) + Math.floor(Math.random() * 15));
+    enemy.hp = Math.max(0, enemy.hp - damage);
+    
+    this.addLogEntry(`You unleash a Power Strike on ${enemy.name} for ${damage} damage!`, 'player');
+    this.showBattleEffect('💥');
+    this.animateAttack('player');
+    
+    SoundManager.playSfx(330, 0.1, 0.3);
+    CharacterManager.updateBar('mp');
+    return true;
+  }
+
+  static playerDefend() {
+    this.addLogEntry('You raise your guard, reducing incoming damage!', 'player');
+    this.showBattleEffect('🛡️');
+    GameState.combat.defending = true;
+    return true;
+  }
+
+  static playerHeal() {
+    const player = GameState.character;
+    
+    if (player.mp < 20) {
+      this.addLogEntry('Not enough mana for Heal spell!', 'system');
+      NotificationManager.show('Not enough mana!', 'error');
+      return false;
+    }
+
+    player.mp -= 20;
+    const healAmount = 25;
+    player.hp = Math.min(player.maxHp, player.hp + healAmount);
+    
+    this.addLogEntry(`You cast Heal and restore ${healAmount} HP!`, 'player');
+    this.showBattleEffect('✨');
+    
+    SoundManager.playSfx(660, 0.06, 0.4);
+    CharacterManager.updateBar('hp');
+    CharacterManager.updateBar('mp');
+    return true;
+  }
+
+  static playerFireball() {
+    const player = GameState.character;
+    
+    if (player.mp < 25) {
+      this.addLogEntry('Not enough mana for Fireball!', 'system');
+      NotificationManager.show('Not enough mana!', 'error');
+      return false;
+    }
+
+    player.mp -= 25;
+    const enemy = GameState.combat.enemy;
+    
+    const damage = Math.max(1, player.stats.magic + Math.floor(Math.random() * 20));
+    enemy.hp = Math.max(0, enemy.hp - damage);
+    
+    this.addLogEntry(`You cast Fireball at ${enemy.name} for ${damage} magic damage!`, 'player');
+    this.showBattleEffect('🔥');
+    this.animateAttack('player');
+    
+    SoundManager.playSfx(880, 0.07, 0.3);
+    CharacterManager.updateBar('mp');
+    return true;
+  }
+
+  static playerLightning() {
+    const player = GameState.character;
+    
+    if (player.mp < 30) {
+      this.addLogEntry('Not enough mana for Lightning!', 'system');
+      NotificationManager.show('Not enough mana!', 'error');
+      return false;
+    }
+
+    player.mp -= 30;
+    const enemy = GameState.combat.enemy;
+    
+    const damage = Math.max(1, Math.floor(player.stats.magic * 1.5) + Math.floor(Math.random() * 25));
+    enemy.hp = Math.max(0, enemy.hp - damage);
+    
+    this.addLogEntry(`You strike ${enemy.name} with Lightning for ${damage} magic damage!`, 'player');
+    this.showBattleEffect('⚡');
+    this.animateAttack('player');
+    
+    SoundManager.playSfx(1100, 0.08, 0.25);
+    CharacterManager.updateBar('mp');
+    return true;
+  }
+
+  static enemyTurn() {
+    if (!GameState.combat.inBattle) return;
+
+    const enemy = GameState.combat.enemy;
+    const player = GameState.character;
+    
+    // Enemy AI - simple random attack
+    const actions = ['attack', 'attack', 'attack', 'power']; // Weighted towards normal attack
+    const action = actions[Math.floor(Math.random() * actions.length)];
+    
+    let damage = 0;
+    
+    if (action === 'power' && Math.random() > 0.7) {
+      damage = Math.max(1, Math.floor(enemy.attack * 1.5) - Math.floor(player.stats.defense / 2) + Math.floor(Math.random() * 8));
+      this.addLogEntry(`${enemy.name} unleashes a powerful attack for ${damage} damage!`, 'enemy');
+      this.showBattleEffect('💥');
+    } else {
+      damage = Math.max(1, enemy.attack - Math.floor(player.stats.defense / 2) + Math.floor(Math.random() * 6));
+      this.addLogEntry(`${enemy.name} attacks you for ${damage} damage!`, 'enemy');
+      this.showBattleEffect('⚔️');
+    }
+
+    // Apply defending reduction
+    if (GameState.combat.defending) {
+      damage = Math.floor(damage / 2);
+      this.addLogEntry(`Your defense reduces the damage to ${damage}!`, 'system');
+      GameState.combat.defending = false;
+    }
+
+    player.hp = Math.max(0, player.hp - damage);
+    
+    this.animateAttack('enemy');
+    SoundManager.playSfx(220, 0.1, 0.2);
+    
+    CharacterManager.updateBar('hp');
+    this.updateCombatDisplay();
+
+    // Check if player is defeated
+    if (player.hp <= 0) {
+      setTimeout(() => this.defeat(), 500);
+      return;
+    }
+
+    // Back to player turn
+    setTimeout(() => {
+      GameState.combat.playerTurn = true;
+      this.enableCombatActions();
+    }, 1500);
+  }
+
+  static victory() {
+    const enemy = GameState.combat.enemy;
+    const expGained = enemy.exp;
+    const goldGained = enemy.gold;
+    
+    this.addLogEntry(`${enemy.name} is defeated!`, 'system');
+    
+    // Give rewards
+    CharacterManager.gainExperience(expGained);
+    
+    this.showBattleResult('victory', {
+      exp: expGained,
+      gold: goldGained,
+      enemy: enemy.name
+    });
+
+    SoundManager.playSfx(660, 0.1, 0.8);
+    setTimeout(() => SoundManager.playSfx(880, 0.08, 0.6), 200);
+  }
+
+  static defeat() {
+    this.addLogEntry('You have been defeated!', 'system');
+    
+    // Penalty - lose some exp and set HP to 1
+    const expLost = Math.floor(GameState.character.exp * 0.1);
+    GameState.character.exp = Math.max(0, GameState.character.exp - expLost);
+    GameState.character.hp = 1;
+    
+    CharacterManager.updateBar('exp');
+    CharacterManager.updateBar('hp');
+    
+    this.showBattleResult('defeat', {
+      expLost: expLost
+    });
+
+    SoundManager.playSfx(110, 0.15, 1.2);
+  }
+
+  static flee() {
+    if (!GameState.combat.inBattle) return;
+    
+    const success = Math.random() > 0.3; // 70% success rate
+    
+    if (success) {
+      this.addLogEntry('You successfully fled from battle!', 'system');
+      NotificationManager.show('Fled from battle!', 'warning');
+      this.endBattle();
+    } else {
+      this.addLogEntry('Failed to flee! The enemy blocks your escape!', 'system');
+      NotificationManager.show('Failed to flee!', 'error');
+      
+      // Enemy gets a free attack
+      GameState.combat.playerTurn = false;
+      this.disableCombatActions();
+      setTimeout(() => this.enemyTurn(), 1000);
+    }
+  }
+
+  static showBattleResult(type, data) {
+    const resultScreen = document.getElementById('battleResult');
+    const title = document.getElementById('resultTitle');
+    const icon = document.getElementById('resultIcon');
+    const message = document.getElementById('resultMessage');
+    const rewardsList = document.getElementById('rewardsList');
+    
+    if (type === 'victory') {
+      title.textContent = 'Victory!';
+      icon.textContent = '🏆';
+      message.textContent = `You have defeated the ${data.enemy}!`;
+      
+      rewardsList.innerHTML = `
+        <li>💰 ${data.gold} Gold</li>
+        <li>⭐ ${data.exp} Experience</li>
+        <li>🎯 Battle completed</li>
+      `;
+    } else {
+      title.textContent = 'Defeat!';
+      icon.textContent = '💀';
+      message.textContent = 'You have been defeated in battle!';
+      
+      rewardsList.innerHTML = `
+        <li>💔 Lost ${data.expLost} Experience</li>
+        <li>🏥 Health reduced to 1</li>
+        <li>⚰️ Battle lost</li>
+      `;
+    }
+
+    resultScreen.setAttribute('aria-hidden', 'false');
+  }
+
+  static endBattle() {
+    GameState.combat.inBattle = false;
+    GameState.combat.enemy = null;
+    GameState.combat.playerTurn = true;
+    GameState.combat.defending = false;
+    
+    this.updateCombatDisplay();
+    this.disableCombatActions();
+    
+    document.getElementById('btnFindEnemy').disabled = false;
+    document.getElementById('btnFlee').disabled = true;
+    document.getElementById('battleResult').setAttribute('aria-hidden', 'true');
+    
+    this.addLogEntry('Battle ended. Ready for next adventure!', 'system');
+  }
+
+  static updateCombatDisplay() {
+    // Update player stats
+    this.updatePlayerBars();
+    
+    // Update enemy display
+    const enemy = GameState.combat.enemy;
+    const enemySide = document.getElementById('enemySide');
+    const enemyName = document.getElementById('enemyName');
+    const enemyLevel = document.getElementById('enemyLevel');
+    const enemyHpBar = document.getElementById('enemyHpBar');
+    const enemyHpValue = document.getElementById('enemyHpValue');
+    
+    if (enemy) {
+      enemySide.style.opacity = '1';
+      enemyName.textContent = enemy.name;
+      enemyLevel.textContent = `Level ${enemy.level}`;
+      
+      const hpPercent = (enemy.hp / enemy.maxHp) * 100;
+      enemyHpBar.style.setProperty('--pct', hpPercent + '%');
+      enemyHpValue.textContent = `${enemy.hp}/${enemy.maxHp}`;
+      
+      // Update enemy sprite based on health
+      const enemySprite = document.getElementById('enemySprite');
+      if (enemy.hp <= 0) {
+        enemySprite.style.filter = 'grayscale(100%) brightness(0.5)';
+      } else if (enemy.hp <= enemy.maxHp * 0.3) {
+        enemySprite.style.filter = 'hue-rotate(20deg) brightness(0.8)';
+      } else {
+        enemySprite.style.filter = 'none';
+      }
+    } else {
+      enemySide.style.opacity = '0.5';
+      enemyName.textContent = 'No Enemy';
+      enemyLevel.textContent = '';
+      enemyHpBar.style.setProperty('--pct', '0%');
+      enemyHpValue.textContent = '0/0';
+    }
+
+    // Update battle status
+    const battleStatus = document.querySelector('.battle-text');
+    if (GameState.combat.inBattle) {
+      if (GameState.combat.playerTurn) {
+        battleStatus.textContent = 'Your turn - Choose an action!';
+      } else {
+        battleStatus.textContent = 'Enemy turn - Preparing attack...';
+      }
+    } else {
+      battleStatus.textContent = 'Ready for battle! Click "Find Enemy" to start.';
+    }
+  }
+
+  static updatePlayerBars() {
+    const player = GameState.character;
+    const playerHpBar = document.getElementById('playerHpBar');
+    const playerHpValue = document.getElementById('playerHpValue');
+    const playerMpBar = document.getElementById('playerMpBar');
+    const playerMpValue = document.getElementById('playerMpValue');
+    
+    const hpPercent = (player.hp / player.maxHp) * 100;
+    const mpPercent = (player.mp / player.maxMp) * 100;
+    
+    playerHpBar.style.setProperty('--pct', hpPercent + '%');
+    playerHpValue.textContent = `${player.hp}/${player.maxHp}`;
+    
+    playerMpBar.style.setProperty('--pct', mpPercent + '%');
+    playerMpValue.textContent = `${player.mp}/${player.maxMp}`;
+  }
+
+  static enableCombatActions() {
+    const combatActions = document.getElementById('combatActions');
+    combatActions.classList.add('active');
+    
+    // Update button states based on MP
+    const player = GameState.character;
+    document.getElementById('btnPowerAttack').disabled = player.mp < 15;
+    document.getElementById('btnHealSpell').disabled = player.mp < 20;
+    document.getElementById('btnFireball').disabled = player.mp < 25;
+    document.getElementById('btnLightning').disabled = player.mp < 30;
+  }
+
+  static disableCombatActions() {
+    const combatActions = document.getElementById('combatActions');
+    combatActions.classList.remove('active');
+  }
+
+  static addLogEntry(message, type = 'system') {
+    const logContent = document.getElementById('logContent');
+    const entry = document.createElement('div');
+    entry.className = `log-entry ${type}`;
+    entry.textContent = message;
+    
+    logContent.appendChild(entry);
+    logContent.scrollTop = logContent.scrollHeight;
+    
+    // Keep only last 20 entries
+    while (logContent.children.length > 20) {
+      logContent.removeChild(logContent.firstChild);
+    }
+  }
+
+  static showBattleEffect(effect) {
+    const battleEffects = document.getElementById('battleEffects');
+    battleEffects.textContent = effect;
+    battleEffects.style.opacity = '1';
+    battleEffects.style.transform = 'translate(-50%, -50%) scale(1.2)';
+    
+    setTimeout(() => {
+      battleEffects.style.opacity = '0';
+      battleEffects.style.transform = 'translate(-50%, -50%) scale(1)';
+    }, 800);
+  }
+
+  static animateAttack(attacker) {
+    const sprite = document.getElementById(attacker + 'Sprite');
+    if (attacker === 'player') {
+      sprite.classList.add('combat-attack');
+      setTimeout(() => sprite.classList.remove('combat-attack'), 500);
+    } else {
+      sprite.classList.add('combat-hit');
+      setTimeout(() => sprite.classList.remove('combat-hit'), 300);
+    }
   }
 }
 

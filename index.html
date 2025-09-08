@@ -8,6 +8,14 @@
       name="description"
       content="A retro-inspired fantasy RPG with classic pixel art style and immersive gameplay."
     />
+    <meta property="og:title" content="Hero's Dawn - Retro Fantasy RPG" />
+    <meta
+      property="og:description"
+      content="Retro-inspired fantasy RPG with pixel art and immersive gameplay."
+    />
+    <meta property="og:image" content="thumbnail.png" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="favicon.ico" />
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -113,6 +121,12 @@
           >
             <span class="nav-icon" aria-hidden="true">🎒</span>
             <span class="nav-text">Inventory</span>
+          </a>
+        </li>
+        <li role="menuitem">
+          <a href="#combat" class="nav-link" tabindex="0" data-section="combat">
+            <span class="nav-icon" aria-hidden="true">⚔️</span>
+            <span class="nav-text">Combat</span>
           </a>
         </li>
         <li role="menuitem">
@@ -642,6 +656,209 @@
             <p class="tooltip-description"></p>
             <div class="tooltip-stats"></div>
             <div class="tooltip-actions"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Combat System -->
+      <section
+        id="combat"
+        class="panel fade-in hidden"
+        aria-labelledby="combat-title"
+        tabindex="-1"
+      >
+        <header class="panel-header">
+          <h2 id="combat-title" class="panel-title">
+            <span class="title-icon" aria-hidden="true">⚔️</span>
+            Combat Arena
+          </h2>
+          <div class="combat-controls">
+            <button class="btn small" id="btnFindEnemy">Find Enemy</button>
+            <button class="btn small secondary" id="btnFlee" disabled>
+              Flee
+            </button>
+          </div>
+        </header>
+
+        <div class="combat-container">
+          <!-- Battle Status -->
+          <div class="battle-status" id="battleStatus">
+            <div class="status-message">
+              <span class="battle-text"
+                >Ready for battle! Click "Find Enemy" to start.</span
+              >
+            </div>
+          </div>
+
+          <!-- Combat Arena -->
+          <div class="combat-arena" id="combatArena">
+            <!-- Player Side -->
+            <div class="combatant player-side">
+              <div class="combatant-avatar">
+                <div class="avatar-sprite player" id="playerSprite"></div>
+                <div class="combatant-name">Sir Aditya</div>
+              </div>
+              <div class="combatant-stats">
+                <div class="health-bar">
+                  <label>Health</label>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill hp"
+                      id="playerHpBar"
+                      style="--pct: 100%"
+                    ></div>
+                  </div>
+                  <span class="bar-value" id="playerHpValue">82/100</span>
+                </div>
+                <div class="mana-bar">
+                  <label>Mana</label>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill mp"
+                      id="playerMpBar"
+                      style="--pct: 100%"
+                    ></div>
+                  </div>
+                  <span class="bar-value" id="playerMpValue">56/100</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- VS Indicator -->
+            <div class="vs-indicator" id="vsIndicator">
+              <span class="vs-text">VS</span>
+              <div class="battle-effects" id="battleEffects"></div>
+            </div>
+
+            <!-- Enemy Side -->
+            <div class="combatant enemy-side" id="enemySide">
+              <div class="combatant-avatar">
+                <div class="avatar-sprite enemy" id="enemySprite"></div>
+                <div class="combatant-name" id="enemyName">No Enemy</div>
+              </div>
+              <div class="combatant-stats">
+                <div class="health-bar">
+                  <label>Health</label>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill hp enemy"
+                      id="enemyHpBar"
+                      style="--pct: 0%"
+                    ></div>
+                  </div>
+                  <span class="bar-value" id="enemyHpValue">0/0</span>
+                </div>
+                <div class="enemy-level" id="enemyLevel"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Combat Actions -->
+          <div class="combat-actions" id="combatActions">
+            <div class="action-category">
+              <h3>⚔️ Attack</h3>
+              <div class="action-buttons">
+                <button
+                  class="combat-btn attack"
+                  id="btnAttack"
+                  data-action="attack"
+                >
+                  <span class="action-icon">⚔️</span>
+                  <span class="action-name">Strike</span>
+                  <span class="action-desc">Basic attack</span>
+                </button>
+                <button
+                  class="combat-btn attack"
+                  id="btnPowerAttack"
+                  data-action="power-attack"
+                >
+                  <span class="action-icon">💥</span>
+                  <span class="action-name">Power Strike</span>
+                  <span class="action-desc">2x damage, costs 15 MP</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="action-category">
+              <h3>🛡️ Defense</h3>
+              <div class="action-buttons">
+                <button
+                  class="combat-btn defense"
+                  id="btnDefend"
+                  data-action="defend"
+                >
+                  <span class="action-icon">🛡️</span>
+                  <span class="action-name">Defend</span>
+                  <span class="action-desc">Reduce incoming damage</span>
+                </button>
+                <button
+                  class="combat-btn defense"
+                  id="btnHealSpell"
+                  data-action="heal-spell"
+                >
+                  <span class="action-icon">✨</span>
+                  <span class="action-name">Heal</span>
+                  <span class="action-desc">Restore 25 HP, costs 20 MP</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="action-category">
+              <h3>🔮 Magic</h3>
+              <div class="action-buttons">
+                <button
+                  class="combat-btn magic"
+                  id="btnFireball"
+                  data-action="fireball"
+                >
+                  <span class="action-icon">🔥</span>
+                  <span class="action-name">Fireball</span>
+                  <span class="action-desc">Magic attack, costs 25 MP</span>
+                </button>
+                <button
+                  class="combat-btn magic"
+                  id="btnLightning"
+                  data-action="lightning"
+                >
+                  <span class="action-icon">⚡</span>
+                  <span class="action-name">Lightning</span>
+                  <span class="action-desc"
+                    >Fast magic attack, costs 30 MP</span
+                  >
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Battle Log -->
+          <div class="battle-log" id="battleLog">
+            <h3>Battle Log</h3>
+            <div class="log-content" id="logContent">
+              <div class="log-entry system">Welcome to the Combat Arena!</div>
+            </div>
+          </div>
+
+          <!-- Victory/Defeat Screen -->
+          <div class="battle-result" id="battleResult" aria-hidden="true">
+            <div class="result-content">
+              <h2 class="result-title" id="resultTitle">Victory!</h2>
+              <div class="result-icon" id="resultIcon">🏆</div>
+              <div class="result-details" id="resultDetails">
+                <p class="result-message" id="resultMessage">
+                  You have defeated the enemy!
+                </p>
+                <div class="rewards" id="battleRewards">
+                  <h4>Rewards:</h4>
+                  <ul id="rewardsList"></ul>
+                </div>
+              </div>
+              <div class="result-actions">
+                <button class="btn primary" id="btnContinue">Continue</button>
+                <button class="btn secondary" id="btnNewBattle">
+                  New Battle
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
