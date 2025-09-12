@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hero's Dawn</title>
+    <link rel="stylesheet" href="styles/global.css" />
+    <link rel="stylesheet" href="styles/loading.css" />
+    <link rel="preload" href="styles/loading.css" as="style" />
+    <link rel="icon" href="assets/favicon.ico" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div
+      id="loading-screen"
+      class="loading-screen"
+      role="alert"
+      aria-live="polite"
+      aria-busy="true"
+    >
+      <div class="loading-content" role="status">
+        <h1 class="game-logo" aria-label="Hero's Dawn logo">Hero's Dawn</h1>
+
+        <div
+          class="loading-bar"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+        >
+          <div class="loading-progress" id="loadingProgress"></div>
+        </div>
+
+        <p class="loading-text">Loading adventure...</p>
+      </div>
+    </div>
+
+    <script type="module" src="scripts/loading.js"></script>
+  </body>
+</html>
