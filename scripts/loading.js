@@ -98,10 +98,10 @@ class LoadingManager {
           this.loadingScreen.style.display = "none";
           window.GameState.ui.loadingComplete = true;
 
-          window.location.href = "index.html";
+          window.location.href = "index1.html";
         }, 500);
       } else {
-        window.location.href = "index.html";
+        window.location.href = "index1.html";
       }
     }, 300);
   }
