@@ -7,15 +7,18 @@
     <link rel="stylesheet" href="styles/global.css" />
     <link rel="stylesheet" href="styles/loading.css" />
     <link rel="preload" href="styles/loading.css" as="style" />
+    <link rel="preload" href="assets/sprites/hero-idle.png" as="image" />
+    <link rel="preload" href="assets/audio/loading-step.mp3" as="audio" />
+    <link rel="preload" href="assets/audio/loading-complete.mp3" as="audio" />
     <link rel="icon" href="assets/favicon.ico" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
-      rel="stylesheet"
-    />
   </head>
   <body>
+    <!-- Scanlines effect (retro CRT look) -->
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <!-- Main Loading Screen -->
     <div
-      id="loading-screen"
+      id="loadingScreen"
       class="loading-screen"
       role="alert"
       aria-live="polite"
@@ -24,20 +27,42 @@
       <div class="loading-content" role="status">
         <h1 class="game-logo" aria-label="Hero's Dawn logo">Hero's Dawn</h1>
 
-        <div
-          class="loading-bar"
-          role="progressbar"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          aria-valuenow="0"
-        >
-          <div class="loading-progress" id="loadingProgress"></div>
+        <!-- Pixel Divider -->
+        <div class="pixel-divider"></div>
+
+        <!-- Loading Bar Container -->
+        <div class="loading-bar-container">
+          <div
+            id="loadingProgress"
+            class="loading-bar"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="0"
+          ></div>
         </div>
 
         <p class="loading-text">Loading adventure...</p>
+
+        <!-- Decorative Pixel Elements -->
+        <div class="pixel-corners">
+          <div class="pixel-corner top-left"></div>
+          <div class="pixel-corner top-right"></div>
+          <div class="pixel-corner bottom-left"></div>
+          <div class="pixel-corner bottom-right"></div>
+        </div>
       </div>
     </div>
 
-    <script type="module" src="scripts/loading.js"></script>
+    <!-- Fallback message if JavaScript is disabled -->
+    <noscript>
+      <div class="noscript-message">
+        <p>JavaScript is required to play Hero's Dawn.</p>
+        <p>Please enable JavaScript and reload the page.</p>
+      </div>
+    </noscript>
+
+    <!-- Loading Script -->
+    <script src="scripts/loading.js"></script>
   </body>
 </html>
