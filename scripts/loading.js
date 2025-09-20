@@ -1,28 +1,110 @@
+/**
+ * Retro Pixel-Style Loading Manager (Optimized)
+ * Handles the game loading sequence with step-based animations
+ */
 class LoadingManager {
   constructor() {
+    // Core elements
     this.progress = 0;
     this.progressBar = document.getElementById("loadingProgress");
     this.loadingScreen = document.getElementById("loadingScreen");
     this.loadingText = document.querySelector(".loading-text");
+    this.pixelCharacter = document.querySelector(".pixel-character");
+    this.started = false;
 
+    // Handle missing elements gracefully
     if (!this.progressBar) {
       console.warn("Loading progress bar not found in DOM");
-    }
-    if (!this.loadingScreen) {
-      console.warn("Loading screen not found in DOM");
-    }
-    if (!this.loadingText) {
-      console.warn("Loading text not found in DOM");
+      this.createFallbackProgressBar();
     }
 
-    window.GameState = window.GameState || { ui: {} };
+    if (!this.loadingScreen) {
+      console.warn("Loading screen not found in DOM");
+      this.createFallbackLoadingScreen();
+    }
+
+    if (!this.loadingText) {
+      console.warn("Loading text not found in DOM");
+      this.createFallbackLoadingText();
+    }
+
+    // Initialization
+    window.GameState = window.GameState || {
+      ui: {},
+      audio: {
+        muted: localStorage.getItem("soundMuted") === "true" || false,
+      },
+    };
+
+    // Preload sound effects
+    this.loadSounds();
+  }
+
+  createFallbackProgressBar() {
+    this.progressBar = document.createElement("div");
+    this.progressBar.id = "loadingProgress";
+    this.progressBar.className = "loading-bar";
+
+    const container = document.createElement("div");
+    container.className = "loading-bar-container";
+    container.appendChild(this.progressBar);
+
+    if (this.loadingScreen) {
+      this.loadingScreen.appendChild(container);
+    } else {
+      document.body.appendChild(container);
+    }
+  }
+
+  createFallbackLoadingScreen() {
+    this.loadingScreen = document.createElement("div");
+    this.loadingScreen.id = "loadingScreen";
+    this.loadingScreen.className = "loading-screen";
+    document.body.appendChild(this.loadingScreen);
+  }
+
+  createFallbackLoadingText() {
+    this.loadingText = document.createElement("p");
+    this.loadingText.className = "loading-text";
+    this.loadingText.textContent = "Loading...";
+
+    if (this.loadingScreen) {
+      this.loadingScreen.appendChild(this.loadingText);
+    } else {
+      document.body.appendChild(this.loadingText);
+    }
+  }
+
+  loadSounds() {
+    this.sounds = {
+      step: new Audio("assets/audio/loading-step.mp3"),
+      complete: new Audio("assets/audio/loading-complete.mp3"),
+    };
+  }
+
+  playSound(name) {
+    if (!window.GameState.audio.muted && this.sounds[name]) {
+      const sound = this.sounds[name].cloneNode();
+      sound.volume = 0.3;
+      sound.play().catch(() => {});
+    }
   }
 
   start() {
+    if (this.started) return; // prevent double start
+    this.started = true;
+
     if (this.loadingScreen) {
       this.loadingScreen.style.display = "flex";
       this.loadingScreen.style.opacity = "1";
+
+      if (!this.pixelCharacter) {
+        this.pixelCharacter = document.createElement("div");
+        this.pixelCharacter.className = "pixel-character";
+        this.loadingScreen.prepend(this.pixelCharacter);
+      }
     }
+
     this.simulateLoading();
   }
 
@@ -31,7 +113,9 @@ class LoadingManager {
       { text: "Initializing game world...", duration: 800 },
       { text: "Loading character data...", duration: 600 },
       { text: "Preparing quests...", duration: 500 },
-      { text: "Setting up inventory...", duration: 400 },
+      { text: "Crafting items...", duration: 400 },
+      { text: "Summoning monsters...", duration: 400 },
+      { text: "Sharpening pixel edges...", duration: 300 },
       { text: "Starting adventure...", duration: 300 },
     ];
 
@@ -39,6 +123,7 @@ class LoadingManager {
 
     const loadStep = () => {
       if (currentStep >= steps.length) {
+        this.playSound("complete");
         this.complete();
         return;
       }
@@ -48,10 +133,15 @@ class LoadingManager {
         this.loadingText.textContent = step.text;
       }
 
-      const targetProgress = ((currentStep + 1) / steps.length) * 100;
+      this.playSound("step");
+
+      const targetProgress = Math.floor(
+        ((currentStep + 1) / steps.length) * 100
+      );
+
       this.animateProgress(targetProgress, step.duration, () => {
         currentStep++;
-        setTimeout(loadStep, 100);
+        setTimeout(loadStep, 200);
       });
     };
 
@@ -61,49 +151,61 @@ class LoadingManager {
   animateProgress(target, duration, callback) {
     const start = this.progress;
     const change = target - start;
-    const startTime = performance.now();
+    const totalSteps = 8;
+    const stepInterval = duration / totalSteps;
 
-    const animate = (currentTime) => {
-      const elapsed = currentTime - startTime;
-      const progress = Math.min(elapsed / duration, 1);
+    let currentStep = 0;
 
-      this.progress = start + change * this.easeOutCubic(progress);
-      if (this.progressBar) {
-        this.progressBar.style.width = this.progress + "%";
-        this.progressBar.setAttribute(
-          "aria-valuenow",
-          this.progress.toFixed(0)
-        );
-      }
+    const animateStep = () => {
+      currentStep++;
 
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      } else {
+      if (currentStep >= totalSteps) {
+        this.progress = target;
+        this.updateProgressBar();
         callback();
+        return;
       }
+
+      // Pixel + glitch effect
+      const glitch = Math.random() > 0.85 ? 2 : 0;
+      this.progress =
+        start + Math.floor((change * currentStep) / totalSteps) + glitch;
+
+      this.updateProgressBar();
+
+      setTimeout(animateStep, stepInterval);
     };
 
-    requestAnimationFrame(animate);
+    setTimeout(animateStep, stepInterval);
   }
 
-  easeOutCubic(t) {
-    return 1 - Math.pow(1 - t, 3);
+  updateProgressBar() {
+    if (this.progressBar) {
+      const pixelatedProgress = Math.round(this.progress / 5) * 5;
+      this.progressBar.style.width = pixelatedProgress + "%";
+      this.progressBar.setAttribute("aria-valuenow", pixelatedProgress);
+    }
   }
 
   complete() {
+    document.body.classList.add("pixel-transition");
+
     setTimeout(() => {
       if (this.loadingScreen) {
         this.loadingScreen.style.opacity = "0";
+
         setTimeout(() => {
           this.loadingScreen.style.display = "none";
           window.GameState.ui.loadingComplete = true;
 
-          window.location.href = "index1.html";
-        }, 500);
+          // Flexible redirect
+          const nextPage = this.loadingScreen.dataset.next || "index.html";
+          window.location.href = nextPage;
+        }, 600);
       } else {
-        window.location.href = "index1.html";
+        window.location.href = "index.html";
       }
-    }, 300);
+    }, 400);
   }
 }
 
