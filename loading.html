@@ -7,16 +7,9 @@
     <link rel="stylesheet" href="styles/global.css" />
     <link rel="stylesheet" href="styles/loading.css" />
     <link rel="preload" href="styles/loading.css" as="style" />
-    <link rel="preload" href="assets/sprites/hero-idle.png" as="image" />
-    <link rel="preload" href="assets/audio/loading-step.mp3" as="audio" />
-    <link rel="preload" href="assets/audio/loading-complete.mp3" as="audio" />
     <link rel="icon" href="assets/favicon.ico" />
   </head>
   <body>
-    <!-- Scanlines effect (retro CRT look) -->
-    <div class="scanlines" aria-hidden="true"></div>
-
-    <!-- Main Loading Screen -->
     <div
       id="loadingScreen"
       class="loading-screen"
@@ -26,11 +19,7 @@
     >
       <div class="loading-content" role="status">
         <h1 class="game-logo" aria-label="Hero's Dawn logo">Hero's Dawn</h1>
-
-        <!-- Pixel Divider -->
         <div class="pixel-divider"></div>
-
-        <!-- Loading Bar Container -->
         <div class="loading-bar-container">
           <div
             id="loadingProgress"
@@ -41,10 +30,7 @@
             aria-valuenow="0"
           ></div>
         </div>
-
         <p class="loading-text">Loading adventure...</p>
-
-        <!-- Decorative Pixel Elements -->
         <div class="pixel-corners">
           <div class="pixel-corner top-left"></div>
           <div class="pixel-corner top-right"></div>
@@ -53,16 +39,12 @@
         </div>
       </div>
     </div>
-
-    <!-- Fallback message if JavaScript is disabled -->
     <noscript>
       <div class="noscript-message">
         <p>JavaScript is required to play Hero's Dawn.</p>
         <p>Please enable JavaScript and reload the page.</p>
       </div>
     </noscript>
-
-    <!-- Loading Script -->
     <script src="scripts/loading.js"></script>
   </body>
 </html>

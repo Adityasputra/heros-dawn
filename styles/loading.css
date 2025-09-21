@@ -1,83 +1,21 @@
-:root {
-  /* ===== COLORS ===== */
-  --bg: #0b0f14;
-  --bg-deep: #070a0f;
-  --panel: #10161f;
-  --gold: #d4af37;
-  --red: #e63946;
-  --glow: #ffd166;
-  --text: #e5e7eb;
-  --muted: #9aa3af;
-  --accent: #9b2226;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --danger: #ef4444;
-  --info: #3b82f6;
-
-  /* ===== EFFECTS ===== */
-  --radius: 16px;
-  --radius-sm: 8px;
-  --radius-lg: 24px;
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.6);
-
-  /* ===== TYPOGRAPHY ===== */
-  --font-family-primary: "Orbitron", "Press Start 2P", monospace;
-  --font-family-mono: "VT323", "Courier New", monospace;
-
-  /* ===== LAYERS ===== */
-  --z-background: -10;
-  --z-content: 1;
-  --z-nav: 10;
-  --z-modal: 100;
-  --z-loading: 1000;
-}
-
-/* ===== RESET & BASE ===== */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-*:focus-visible {
-  outline: 2px solid var(--glow);
-  outline-offset: 2px;
-  border-radius: var(--radius-sm);
-}
-
-html,
-body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  background: linear-gradient(180deg, var(--bg), var(--bg-deep));
-  color: var(--text);
-  font-family: var(--font-family-primary);
-  font-size: 14px;
-  line-height: 1.6;
-  overflow-x: hidden;
-  position: relative;
-}
-
 /* ===== LOADING SCREEN ===== */
 .loading-screen {
   position: fixed;
   inset: 0;
-  background: radial-gradient(
-    circle at center,
-    var(--bg) 0%,
-    var(--bg-deep) 100%
-  );
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: var(--z-loading);
-  transition: opacity 0.5s ease, visibility 0.5s ease;
+  flex-direction: column;
+  background-color: var(--bg-dark);
+  background-image: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.2) 50%,
+    transparent 50%
+  );
+  background-size: 100% 4px;
+  z-index: 9999;
+  image-rendering: pixelated;
+  transition: opacity 0.5s steps(5), visibility 0.5s steps(5);
 }
 
 .loading-screen.hidden {
@@ -87,82 +25,113 @@ body {
 }
 
 .loading-content {
-  text-align: center;
   max-width: 400px;
   padding: 24px;
-  animation: fadeInUp 1s ease forwards;
+  text-align: center;
+  background-color: rgba(10, 10, 18, 0.85);
+  border: 4px solid var(--border);
+  box-shadow: inset -4px -4px 0 0 var(--border-dark),
+    inset 4px 4px 0 0 var(--border-light);
+  animation: fadeInUp 0.8s steps(8) forwards;
 }
 
 .game-logo {
+  margin-bottom: 32px;
   font-size: 36px;
   font-weight: bold;
   letter-spacing: 2px;
-  color: var(--gold);
-  margin-bottom: 32px;
-  text-shadow: 0 0 12px rgba(212, 175, 55, 0.65),
-    0 0 24px rgba(255, 209, 102, 0.3);
-  animation: pulse-glow 2.5s infinite;
+  color: var(--primary);
+  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.8);
+  animation: pixel-pulse 2s infinite steps(4);
+}
+
+.loading-bar-container {
+  position: relative;
+  width: 100%;
+  height: 16px;
+  margin-bottom: 16px;
+  background: var(--bg-dark);
+  border: 2px solid var(--border-dark);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.5), 0 2px 0 0 rgba(0, 0, 0, 0.5);
+  overflow: hidden;
 }
 
 .loading-bar {
-  width: 100%;
-  height: 10px;
-  background: var(--panel);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  margin-bottom: 18px;
-  border: 1px solid #2a3548;
-  box-shadow: var(--shadow-sm);
-}
-
-.loading-progress {
-  height: 100%;
   width: 0%;
-  background: linear-gradient(90deg, var(--gold), var(--glow));
-  transition: width 0.3s ease;
-  animation: shimmer 2s infinite linear;
+  height: 100%;
+  background: var(--primary);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 6px,
+    rgba(0, 0, 0, 0.2) 6px,
+    rgba(0, 0, 0, 0.2) 12px
+  );
+  transition: width 0.3s steps(10);
 }
 
 .loading-text {
-  color: var(--muted);
-  margin: 0;
-  font-size: 13px;
-  letter-spacing: 0.5px;
+  margin-top: 16px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  font-family: var(--font-secondary);
+  animation: blink 1.5s infinite steps(2);
 }
 
-/* ===== ANIMATIONS ===== */
-@keyframes shimmer {
-  0% {
-    background-position: -200px 0;
-  }
-  100% {
-    background-position: 200px 0;
-  }
-}
-
-.loading-progress {
-  background-size: 200% 100%;
-}
-
-@keyframes pulse-glow {
+/* ===== PIXEL ANIMATIONS ===== */
+@keyframes pixel-pulse {
   0%,
   100% {
-    text-shadow: 0 0 10px rgba(212, 175, 55, 0.6),
-      0 0 20px rgba(255, 209, 102, 0.3);
+    transform: scale(1);
   }
   50% {
-    text-shadow: 0 0 18px rgba(212, 175, 55, 0.9),
-      0 0 36px rgba(255, 209, 102, 0.6);
+    transform: scale(1.05);
+  }
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0.6;
   }
 }
 
 @keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.loading-text::after {
+  content: "";
+  animation: loadingDots 1.5s infinite steps(4);
+}
+
+@keyframes loadingDots {
+  0%,
+  25% {
+    content: "";
+  }
+  26%,
+  50% {
+    content: ".";
+  }
+  51%,
+  75% {
+    content: "..";
+  }
+  76%,
+  100% {
+    content: "...";
   }
 }

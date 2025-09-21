@@ -1,34 +1,33 @@
 /**
- * Retro Pixel-Style Loading Manager (Optimized)
- * Handles the game loading sequence with step-based animations
+ * Retro Pixel-Style Loading Manager
+ * Handles the game loading screen
  */
 class LoadingManager {
   constructor() {
-    // Core elements
     this.progress = 0;
+    this.started = false;
+
+    // Core elements
     this.progressBar = document.getElementById("loadingProgress");
     this.loadingScreen = document.getElementById("loadingScreen");
     this.loadingText = document.querySelector(".loading-text");
     this.pixelCharacter = document.querySelector(".pixel-character");
-    this.started = false;
 
-    // Handle missing elements gracefully
+    // Fallbacks
     if (!this.progressBar) {
       console.warn("Loading progress bar not found in DOM");
       this.createFallbackProgressBar();
     }
-
     if (!this.loadingScreen) {
       console.warn("Loading screen not found in DOM");
       this.createFallbackLoadingScreen();
     }
-
     if (!this.loadingText) {
       console.warn("Loading text not found in DOM");
       this.createFallbackLoadingText();
     }
 
-    // Initialization
+    // Global GameState init
     window.GameState = window.GameState || {
       ui: {},
       audio: {
@@ -36,7 +35,6 @@ class LoadingManager {
       },
     };
 
-    // Preload sound effects
     this.loadSounds();
   }
 
@@ -67,31 +65,34 @@ class LoadingManager {
     this.loadingText = document.createElement("p");
     this.loadingText.className = "loading-text";
     this.loadingText.textContent = "Loading...";
-
-    if (this.loadingScreen) {
-      this.loadingScreen.appendChild(this.loadingText);
-    } else {
-      document.body.appendChild(this.loadingText);
-    }
+    (this.loadingScreen || document.body).appendChild(this.loadingText);
   }
 
   loadSounds() {
     this.sounds = {
-      step: new Audio("assets/audio/loading-step.mp3"),
-      complete: new Audio("assets/audio/loading-complete.mp3"),
+      step: this.safeAudio("assets/audio/loading-step.mp3"),
+      complete: this.safeAudio("assets/audio/loading-complete.mp3"),
     };
+  }
+
+  safeAudio(src) {
+    try {
+      return new Audio(src);
+    } catch {
+      return null;
+    }
   }
 
   playSound(name) {
     if (!window.GameState.audio.muted && this.sounds[name]) {
       const sound = this.sounds[name].cloneNode();
       sound.volume = 0.3;
-      sound.play().catch(() => {});
+      sound.play().catch(() => {}); // ignore autoplay restriction
     }
   }
 
   start() {
-    if (this.started) return; // prevent double start
+    if (this.started) return;
     this.started = true;
 
     if (this.loadingScreen) {
@@ -129,10 +130,7 @@ class LoadingManager {
       }
 
       const step = steps[currentStep];
-      if (this.loadingText) {
-        this.loadingText.textContent = step.text;
-      }
-
+      if (this.loadingText) this.loadingText.textContent = step.text;
       this.playSound("step");
 
       const targetProgress = Math.floor(
@@ -166,13 +164,11 @@ class LoadingManager {
         return;
       }
 
-      // Pixel + glitch effect
       const glitch = Math.random() > 0.85 ? 2 : 0;
       this.progress =
         start + Math.floor((change * currentStep) / totalSteps) + glitch;
 
       this.updateProgressBar();
-
       setTimeout(animateStep, stepInterval);
     };
 
@@ -198,7 +194,6 @@ class LoadingManager {
           this.loadingScreen.style.display = "none";
           window.GameState.ui.loadingComplete = true;
 
-          // Flexible redirect
           const nextPage = this.loadingScreen.dataset.next || "index.html";
           window.location.href = nextPage;
         }, 600);
