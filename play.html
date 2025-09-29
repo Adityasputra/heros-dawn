@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hero's Dawn - Retro Fantasy RPG</title>
+    <meta
+      name="description"
+      content="A retro-inspired fantasy RPG with classic pixel art style and immersive gameplay."
+    />
+    <meta property="og:title" content="Hero's Dawn - Retro Fantasy RPG" />
+    <meta
+      property="og:description"
+      content="Retro-inspired fantasy RPG with pixel art and immersive gameplay."
+    />
+    <meta property="og:image" content="thumbnail.png" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="favicon.ico" />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen" aria-live="polite">
+      <div class="loading-content">
+        <div class="game-logo">⚔️ Hero's Dawn</div>
+        <div class="loading-bar">
+          <div class="loading-progress" id="loadingProgress"></div>
+        </div>
+        <p class="loading-text">Loading adventure...</p>
+      </div>
+    </div>
+
+    <!-- Background -->
+    <div class="bg-scene" aria-hidden="true">
+      <div class="starfield" id="starfield"></div>
+      <div class="mountains"></div>
+      <div class="fog"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="title-screen fade-in" role="banner">
+      <h1 class="game-title" tabindex="0">
+        <span class="title-icon" aria-hidden="true">⚔️</span>
+        Hero's Dawn
+        <span class="title-subtitle">Retro Fantasy RPG</span>
+      </h1>
+      <p class="subtitle">Press Start - Adventure Begins</p>
+
+      <div class="title-actions">
+        <button
+          class="btn primary music-btn"
+          id="btnToggleMusic"
+          aria-pressed="false"
+          aria-label="Toggle background music"
+          title="Play/Pause 8-bit music"
+        >
+          <span class="music-icon" aria-hidden="true">🎵</span>
+          <span class="music-text">Play Music</span>
+        </button>
+        <button
+          class="btn secondary"
+          id="btnSettings"
+          aria-label="Game Settings"
+          title="Open settings"
+        >
+          <span aria-hidden="true">⚙️</span> Settings
+        </button>
+      </div>
+    </header>
+
+    <!-- Mobile Menu Toggle -->
+    <button
+      class="menu-toggle"
+      id="menuToggle"
+      aria-label="Toggle navigation menu"
+      aria-controls="mainNav"
+      aria-expanded="false"
+    >
+      <span class="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+    <!-- Navigation Menu -->
+    <nav class="rpg-nav" id="mainNav" aria-label="Main navigation">
+      <ul role="menu" class="nav-menu">
+        <li role="menuitem">
+          <a
+            href="#status"
+            class="nav-link active"
+            tabindex="0"
+            data-section="status"
+          >
+            <span class="nav-icon" aria-hidden="true">🎮</span>
+            <span class="nav-text">Character</span>
+          </a>
+        </li>
+        <li role="menuitem">
+          <a href="#quests" class="nav-link" tabindex="0" data-section="quests">
+            <span class="nav-icon" aria-hidden="true">📜</span>
+            <span class="nav-text">Quests</span>
+          </a>
+        </li>
+        <li role="menuitem">
+          <a
+            href="#inventory"
+            class="nav-link"
+            tabindex="0"
+            data-section="inventory"
+          >
+            <span class="nav-icon" aria-hidden="true">🎒</span>
+            <span class="nav-text">Inventory</span>
+          </a>
+        </li>
+        <li role="menuitem">
+          <a href="#combat" class="nav-link" tabindex="0" data-section="combat">
+            <span class="nav-icon" aria-hidden="true">⚔️</span>
+            <span class="nav-text">Combat</span>
+          </a>
+        </li>
+        <li role="menuitem">
+          <a href="#exit" class="nav-link" tabindex="0" data-section="exit">
+            <span class="nav-icon" aria-hidden="true">ℹ️</span>
+            <span class="nav-text">About</span>
+          </a>
+        </li>
+        <li role="menuitem">
+          <button
+            class="nav-link exit-btn"
+            type="button"
+            id="btnExit"
+            tabindex="0"
+          >
+            <span class="nav-icon" aria-hidden="true">🚪</span>
+            <span class="nav-text">Exit</span>
+          </button>
+        </li>
+      </ul>
+    </nav>
+
+    <main id="main-content">
+      <!-- Character Status -->
+      <section
+        id="status"
+        class="panel fade-in"
+        aria-labelledby="status-title"
+        tabindex="-1"
+      >
+        <header class="panel-header">
+          <h2 id="status-title" class="panel-title">
+            <span class="title-icon" aria-hidden="true">🧙‍♂️</span>
+            Character Status
+          </h2>
+          <button
+            class="btn icon-btn"
+            id="btnRefresh"
+            aria-label="Refresh character data"
+            title="Refresh"
+          >
+            <span aria-hidden="true">🔄</span>
+          </button>
+        </header>
+
+        <div class="status-wrap">
+          <!-- Avatar -->
+          <figure class="avatar" tabindex="0">
+            <div class="avatar-container">
+              <div
+                class="avatar-img"
+                role="img"
+                aria-label="Pixel Knight avatar"
+              ></div>
+              <div
+                class="avatar-status"
+                id="avatarStatus"
+                aria-live="polite"
+              ></div>
+            </div>
+            <figcaption class="avatar-name">
+              <strong>Sir Aditya</strong>
+              <span class="avatar-class">Knight</span>
+            </figcaption>
+          </figure>
+
+          <!-- Status Bars -->
+          <div class="bars">
+            <!-- HP -->
+            <div class="bar-container">
+              <div class="bar">
+                <label for="hpBar" class="bar-label">
+                  <span class="bar-icon" aria-hidden="true">❤️</span>
+                  Health
+                </label>
+                <div class="bar-track" title="Health Points">
+                  <div
+                    id="hpBar"
+                    class="bar-fill hp"
+                    style="--pct: 82%"
+                    role="progressbar"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-valuenow="82"
+                    aria-label="Health Points"
+                    aria-describedby="hpVal"
+                  ></div>
+                </div>
+                <span class="bar-val" id="hpVal" aria-live="polite"
+                  >82/100</span
+                >
+              </div>
+              <div class="bar-effects" id="hpEffects"></div>
+            </div>
+
+            <!-- MP -->
+            <div class="bar-container">
+              <div class="bar">
+                <label for="mpBar" class="bar-label">
+                  <span class="bar-icon" aria-hidden="true">💙</span>
+                  Mana
+                </label>
+                <div class="bar-track" title="Mana Points">
+                  <div
+                    id="mpBar"
+                    class="bar-fill mp"
+                    style="--pct: 56%"
+                    role="progressbar"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-valuenow="56"
+                    aria-label="Mana Points"
+                    aria-describedby="mpVal"
+                  ></div>
+                </div>
+                <span class="bar-val" id="mpVal" aria-live="polite"
+                  >56/100</span
+                >
+              </div>
+              <div class="bar-effects" id="mpEffects"></div>
+            </div>
+
+            <!-- EXP -->
+            <div class="bar-container">
+              <div class="bar">
+                <label for="expBar" class="bar-label">
+                  <span class="bar-icon" aria-hidden="true">⭐</span>
+                  Experience
+                </label>
+                <div class="bar-track" title="Experience Points">
+                  <div
+                    id="expBar"
+                    class="bar-fill exp"
+                    style="--pct: 45%"
+                    role="progressbar"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-valuenow="45"
+                    aria-label="Experience Points"
+                    aria-describedby="expVal"
+                  ></div>
+                </div>
+                <span class="bar-val" id="expVal" aria-live="polite"
+                  >450/1000</span
+                >
+              </div>
+              <div class="exp-to-next">550 XP to level 13</div>
+            </div>
+          </div>
+
+          <!-- Level & Stats -->
+          <div class="character-info">
+            <div class="level-display" title="Current Level">
+              <span class="level-label">Level</span>
+              <strong class="level-number" id="levelNum">12</strong>
+            </div>
+
+            <div class="stats-grid">
+              <div class="stat">
+                <span class="stat-label">Attack</span>
+                <span class="stat-value">45</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Defense</span>
+                <span class="stat-value">32</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Magic</span>
+                <span class="stat-value">28</span>
+              </div>
+              <div class="stat">
+                <span class="stat-label">Speed</span>
+                <span class="stat-value">38</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="action-section" aria-label="Character Actions">
+            <h3 class="action-title">Quick Actions</h3>
+            <div class="action-grid">
+              <button
+                class="action-btn damage"
+                id="btnDamage"
+                title="Take 10 HP damage"
+              >
+                <span aria-hidden="true">⚔️</span>
+                <span>Take Damage</span>
+              </button>
+              <button class="action-btn heal" id="btnHeal" title="Heal 15 HP">
+                <span aria-hidden="true">🧪</span>
+                <span>Use Potion</span>
+              </button>
+              <button
+                class="action-btn focus"
+                id="btnFocus"
+                title="Restore 10 MP"
+              >
+                <span aria-hidden="true">🔮</span>
+                <span>Meditate</span>
+              </button>
+              <button
+                class="action-btn exp"
+                id="btnGainExp"
+                title="Gain 50 EXP"
+              >
+                <span aria-hidden="true">📚</span>
+                <span>Study</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Status Effects -->
+          <div class="status-effects">
+            <h3 class="effects-title">Active Effects</h3>
+            <div class="effects-list" id="statusEffects">
+              <span class="effect-item none">None</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quest Log -->
+      <section
+        id="quests"
+        class="panel fade-in hidden"
+        aria-labelledby="quests-title"
+        tabindex="-1"
+      >
+        <header class="panel-header">
+          <h2 id="quests-title" class="panel-title">
+            <span class="title-icon" aria-hidden="true">📜</span>
+            Quest Log
+          </h2>
+          <div class="quest-filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="active">Active</button>
+            <button class="filter-btn" data-filter="completed">
+              Completed
+            </button>
+          </div>
+        </header>
+
+        <div class="quest-stats">
+          <div class="quest-stat">
+            <span class="stat-number">2</span>
+            <span class="stat-label">Active</span>
+          </div>
+          <div class="quest-stat">
+            <span class="stat-number">1</span>
+            <span class="stat-label">Completed</span>
+          </div>
+          <div class="quest-stat">
+            <span class="stat-number">970</span>
+            <span class="stat-label">Total XP</span>
+          </div>
+        </div>
+
+        <ul class="quest-list" role="list">
+          <li class="quest-item active" data-status="active" tabindex="0">
+            <div class="quest-header">
+              <span class="quest-icon" aria-hidden="true">🧭</span>
+              <div class="quest-meta">
+                <h3 class="quest-title">Ancient Relic Hunt</h3>
+                <div class="quest-tags">
+                  <span class="quest-tag active">Active</span>
+                  <span class="quest-difficulty easy">Easy</span>
+                </div>
+              </div>
+              <button class="quest-expand" aria-label="Expand quest details">
+                <span aria-hidden="true">▼</span>
+              </button>
+            </div>
+            <div class="quest-body">
+              <p class="quest-description">
+                Find the ancient sword in the western ruins. The weapon holds
+                mysterious powers that could aid in your journey.
+              </p>
+              <div class="quest-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 60%"></div>
+                </div>
+                <span class="progress-text">3/5 Clues Found</span>
+              </div>
+              <div class="quest-rewards">
+                <strong>Rewards:</strong> 250 XP, 50 Gold, Iron Sword
+              </div>
+              <div class="quest-actions">
+                <button class="btn small primary">Track</button>
+                <button class="btn small secondary">Abandon</button>
+              </div>
+            </div>
+          </li>
+
+          <li class="quest-item active" data-status="active" tabindex="0">
+            <div class="quest-header">
+              <span class="quest-icon" aria-hidden="true">🐉</span>
+              <div class="quest-meta">
+                <h3 class="quest-title">Dragon's Lair Challenge</h3>
+                <div class="quest-tags">
+                  <span class="quest-tag active">Active</span>
+                  <span class="quest-difficulty hard">Hard</span>
+                </div>
+              </div>
+              <button class="quest-expand" aria-label="Expand quest details">
+                <span aria-hidden="true">▼</span>
+              </button>
+            </div>
+            <div class="quest-body">
+              <p class="quest-description">
+                Collect 3 Dragon Scales from the northern caves. Beware of the
+                ancient guardian that protects them.
+              </p>
+              <div class="quest-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: 33%"></div>
+                </div>
+                <span class="progress-text">1/3 Scales Collected</span>
+              </div>
+              <div class="quest-rewards">
+                <strong>Rewards:</strong> 600 XP, Dragon Scale Armor
+              </div>
+              <div class="quest-actions">
+                <button class="btn small primary">Track</button>
+                <button class="btn small secondary">Abandon</button>
+              </div>
+            </div>
+          </li>
+
+          <li class="quest-item completed" data-status="completed" tabindex="0">
+            <div class="quest-header">
+              <span class="quest-icon" aria-hidden="true">🌟</span>
+              <div class="quest-meta">
+                <h3 class="quest-title">Fallen Star Investigation</h3>
+                <div class="quest-tags">
+                  <span class="quest-tag completed">Completed</span>
+                  <span class="quest-difficulty easy">Easy</span>
+                </div>
+              </div>
+              <button class="quest-expand" aria-label="Expand quest details">
+                <span aria-hidden="true">▼</span>
+              </button>
+            </div>
+            <div class="quest-body">
+              <p class="quest-description">
+                Helped the village astronomer study the meteorite that fell near
+                the village.
+              </p>
+              <div class="quest-completion">
+                <span class="completion-date">Completed 2 days ago</span>
+              </div>
+              <div class="quest-rewards received">
+                <strong>Rewards Received:</strong> 120 XP, 1 Star Elixir
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- Inventory -->
+      <section
+        id="inventory"
+        class="panel fade-in hidden"
+        aria-labelledby="inventory-title"
+        tabindex="-1"
+      >
+        <header class="panel-header">
+          <h2 id="inventory-title" class="panel-title">
+            <span class="title-icon" aria-hidden="true">🎒</span>
+            Inventory
+          </h2>
+          <div class="inventory-info">
+            <span class="item-count">6/20 Items</span>
+            <button class="btn small" id="btnSortInventory">Sort</button>
+          </div>
+        </header>
+
+        <div class="inventory-filters">
+          <button class="filter-btn active" data-category="all">All</button>
+          <button class="filter-btn" data-category="weapons">Weapons</button>
+          <button class="filter-btn" data-category="armor">Armor</button>
+          <button class="filter-btn" data-category="consumables">Items</button>
+        </div>
+
+        <div class="inventory-container">
+          <div class="inventory-grid" role="grid" aria-label="Inventory items">
+            <div
+              class="item-slot equipped"
+              data-name="Iron Sword"
+              data-category="weapons"
+              data-rarity="common"
+              tabindex="0"
+              role="gridcell"
+            >
+              <div class="item-content">
+                <div class="pixel-icon sword" aria-hidden="true"></div>
+                <div class="item-info">
+                  <span class="item-name">Iron Sword</span>
+                  <span class="item-stats">DMG +15</span>
+                </div>
+                <div class="item-rarity common"></div>
+                <div class="equipped-indicator" aria-label="Equipped">⚡</div>
+              </div>
+            </div>
+
+            <div
+              class="item-slot"
+              data-name="Wood Shield"
+              data-category="armor"
+              data-rarity="common"
+              tabindex="0"
+              role="gridcell"
+            >
+              <div class="item-content">
+                <div class="pixel-icon shield" aria-hidden="true"></div>
+                <div class="item-info">
+                  <span class="item-name">Wood Shield</span>
+                  <span class="item-stats">DEF +8</span>
+                </div>
+                <div class="item-rarity common"></div>
+              </div>
+            </div>
+
+            <div
+              class="item-slot consumable"
+              data-name="Health Potion"
+              data-category="consumables"
+              data-rarity="common"
+              tabindex="0"
+              role="gridcell"
+            >
+              <div class="item-content">
+                <div class="pixel-icon potion red" aria-hidden="true"></div>
+                <div class="item-info">
+                  <span class="item-name">Health Potion</span>
+                  <span class="item-stats">Restore 50 HP</span>
+                </div>
+                <div class="item-quantity">x3</div>
+                <div class="item-rarity common"></div>
+              </div>
+            </div>
+
+            <div
+              class="item-slot consumable"
+              data-name="Mana Potion"
+              data-category="consumables"
+              data-rarity="common"
+              tabindex="0"
+              role="gridcell"
+            >
+              <div class="item-content">
+                <div class="pixel-icon potion blue" aria-hidden="true"></div>
+                <div class="item-info">
+                  <span class="item-name">Mana Potion</span>
+                  <span class="item-stats">Restore 30 MP</span>
+                </div>
+                <div class="item-quantity">x2</div>
+                <div class="item-rarity common"></div>
+              </div>
+            </div>
+
+            <div
+              class="item-slot rare"
+              data-name="Star Shard"
+              data-category="consumables"
+              data-rarity="rare"
+              tabindex="0"
+              role="gridcell"
+            >
+              <div class="item-content">
+                <div class="pixel-icon star" aria-hidden="true"></div>
+                <div class="item-info">
+                  <span class="item-name">Star Shard</span>
+                  <span class="item-stats">Magical Component</span>
+                </div>
+                <div class="item-rarity rare"></div>
+              </div>
+            </div>
+
+            <div
+              class="item-slot"
+              data-name="World Map"
+              data-category="tools"
+              data-rarity="common"
+              tabindex="0"
+              role="gridcell"
+            >
+              <div class="item-content">
+                <div class="pixel-icon map" aria-hidden="true"></div>
+                <div class="item-info">
+                  <span class="item-name">World Map</span>
+                  <span class="item-stats">Navigation Tool</span>
+                </div>
+                <div class="item-rarity common"></div>
+              </div>
+            </div>
+
+            <!-- Empty slots -->
+            <div
+              class="item-slot empty"
+              aria-label="Empty slot"
+              tabindex="0"
+              role="gridcell"
+            >
+              <div class="empty-indicator">+</div>
+            </div>
+            <div
+              class="item-slot empty"
+              aria-label="Empty slot"
+              tabindex="0"
+              role="gridcell"
+            >
+              <div class="empty-indicator">+</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Item tooltip -->
+        <div
+          class="item-tooltip"
+          id="itemTooltip"
+          role="tooltip"
+          aria-hidden="true"
+        >
+          <div class="tooltip-content">
+            <h4 class="tooltip-title"></h4>
+            <p class="tooltip-description"></p>
+            <div class="tooltip-stats"></div>
+            <div class="tooltip-actions"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Combat System -->
+      <section
+        id="combat"
+        class="panel fade-in hidden"
+        aria-labelledby="combat-title"
+        tabindex="-1"
+      >
+        <header class="panel-header">
+          <h2 id="combat-title" class="panel-title">
+            <span class="title-icon" aria-hidden="true">⚔️</span>
+            Combat Arena
+          </h2>
+          <div class="combat-controls">
+            <button class="btn small" id="btnFindEnemy">Find Enemy</button>
+            <button class="btn small secondary" id="btnFlee" disabled>
+              Flee
+            </button>
+          </div>
+        </header>
+
+        <div class="combat-container">
+          <!-- Battle Status -->
+          <div class="battle-status" id="battleStatus">
+            <div class="status-message">
+              <span class="battle-text"
+                >Ready for battle! Click "Find Enemy" to start.</span
+              >
+            </div>
+          </div>
+
+          <!-- Combat Arena -->
+          <div class="combat-arena" id="combatArena">
+            <!-- Player Side -->
+            <div class="combatant player-side">
+              <div class="combatant-avatar">
+                <div class="avatar-sprite player" id="playerSprite"></div>
+                <div class="combatant-name">Sir Aditya</div>
+              </div>
+              <div class="combatant-stats">
+                <div class="health-bar">
+                  <label>Health</label>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill hp"
+                      id="playerHpBar"
+                      style="--pct: 100%"
+                    ></div>
+                  </div>
+                  <span class="bar-value" id="playerHpValue">82/100</span>
+                </div>
+                <div class="mana-bar">
+                  <label>Mana</label>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill mp"
+                      id="playerMpBar"
+                      style="--pct: 100%"
+                    ></div>
+                  </div>
+                  <span class="bar-value" id="playerMpValue">56/100</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- VS Indicator -->
+            <div class="vs-indicator" id="vsIndicator">
+              <span class="vs-text">VS</span>
+              <div class="battle-effects" id="battleEffects"></div>
+            </div>
+
+            <!-- Enemy Side -->
+            <div class="combatant enemy-side" id="enemySide">
+              <div class="combatant-avatar">
+                <div class="avatar-sprite enemy" id="enemySprite"></div>
+                <div class="combatant-name" id="enemyName">No Enemy</div>
+              </div>
+              <div class="combatant-stats">
+                <div class="health-bar">
+                  <label>Health</label>
+                  <div class="bar-track">
+                    <div
+                      class="bar-fill hp enemy"
+                      id="enemyHpBar"
+                      style="--pct: 0%"
+                    ></div>
+                  </div>
+                  <span class="bar-value" id="enemyHpValue">0/0</span>
+                </div>
+                <div class="enemy-level" id="enemyLevel"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Combat Actions -->
+          <div class="combat-actions" id="combatActions">
+            <div class="action-category">
+              <h3>⚔️ Attack</h3>
+              <div class="action-buttons">
+                <button
+                  class="combat-btn attack"
+                  id="btnAttack"
+                  data-action="attack"
+                >
+                  <span class="action-icon">⚔️</span>
+                  <span class="action-name">Strike</span>
+                  <span class="action-desc">Basic attack</span>
+                </button>
+                <button
+                  class="combat-btn attack"
+                  id="btnPowerAttack"
+                  data-action="power-attack"
+                >
+                  <span class="action-icon">💥</span>
+                  <span class="action-name">Power Strike</span>
+                  <span class="action-desc">2x damage, costs 15 MP</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="action-category">
+              <h3>🛡️ Defense</h3>
+              <div class="action-buttons">
+                <button
+                  class="combat-btn defense"
+                  id="btnDefend"
+                  data-action="defend"
+                >
+                  <span class="action-icon">🛡️</span>
+                  <span class="action-name">Defend</span>
+                  <span class="action-desc">Reduce incoming damage</span>
+                </button>
+                <button
+                  class="combat-btn defense"
+                  id="btnHealSpell"
+                  data-action="heal-spell"
+                >
+                  <span class="action-icon">✨</span>
+                  <span class="action-name">Heal</span>
+                  <span class="action-desc">Restore 25 HP, costs 20 MP</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="action-category">
+              <h3>🔮 Magic</h3>
+              <div class="action-buttons">
+                <button
+                  class="combat-btn magic"
+                  id="btnFireball"
+                  data-action="fireball"
+                >
+                  <span class="action-icon">🔥</span>
+                  <span class="action-name">Fireball</span>
+                  <span class="action-desc">Magic attack, costs 25 MP</span>
+                </button>
+                <button
+                  class="combat-btn magic"
+                  id="btnLightning"
+                  data-action="lightning"
+                >
+                  <span class="action-icon">⚡</span>
+                  <span class="action-name">Lightning</span>
+                  <span class="action-desc"
+                    >Fast magic attack, costs 30 MP</span
+                  >
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Battle Log -->
+          <div class="battle-log" id="battleLog">
+            <h3>Battle Log</h3>
+            <div class="log-content" id="logContent">
+              <div class="log-entry system">Welcome to the Combat Arena!</div>
+            </div>
+          </div>
+
+          <!-- Victory/Defeat Screen -->
+          <div class="battle-result" id="battleResult" aria-hidden="true">
+            <div class="result-content">
+              <h2 class="result-title" id="resultTitle">Victory!</h2>
+              <div class="result-icon" id="resultIcon">🏆</div>
+              <div class="result-details" id="resultDetails">
+                <p class="result-message" id="resultMessage">
+                  You have defeated the enemy!
+                </p>
+                <div class="rewards" id="battleRewards">
+                  <h4>Rewards:</h4>
+                  <ul id="rewardsList"></ul>
+                </div>
+              </div>
+              <div class="result-actions">
+                <button class="btn primary" id="btnContinue">Continue</button>
+                <button class="btn secondary" id="btnNewBattle">
+                  New Battle
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- About/Exit -->
+      <section
+        id="exit"
+        class="panel fade-in hidden"
+        aria-labelledby="exit-title"
+        tabindex="-1"
+      >
+        <header class="panel-header">
+          <h2 id="exit-title" class="panel-title">
+            <span class="title-icon" aria-hidden="true">ℹ️</span>
+            About Hero's Dawn
+          </h2>
+        </header>
+
+        <div class="about-content">
+          <div class="game-info">
+            <div class="info-card">
+              <h3>🎮 Game Features</h3>
+              <ul>
+                <li>Retro pixel art style</li>
+                <li>Character progression system</li>
+                <li>Quest management</li>
+                <li>Inventory system</li>
+                <li>8-bit background music</li>
+                <li>Responsive design</li>
+              </ul>
+            </div>
+
+            <div class="info-card">
+              <h3>🛠️ Technical Stack</h3>
+              <ul>
+                <li>Pure HTML5, CSS3 & JavaScript</li>
+                <li>CSS Grid & Flexbox</li>
+                <li>Web Audio API</li>
+                <li>LocalStorage for data persistence</li>
+                <li>ARIA accessibility features</li>
+                <li>Mobile-first responsive design</li>
+              </ul>
+            </div>
+
+            <div class="info-card">
+              <h3>📱 Controls</h3>
+              <ul>
+                <li><kbd>Tab</kbd> - Navigate between elements</li>
+                <li><kbd>Enter</kbd> / <kbd>Space</kbd> - Activate buttons</li>
+                <li><kbd>Esc</kbd> - Close dialogs</li>
+                <li>Click/Tap - Interact with items</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="credits">
+            <h3>Credits</h3>
+            <p>
+              <strong>Hero's Dawn</strong> - A retro RPG prototype<br />
+              Created with ❤️ by <strong>Adityasputra</strong><br />
+              © 2025 - Open source under MIT License
+            </p>
+            <div class="social-links">
+              <a
+                href="https://github.com/Adityasputra/heros-dawn"
+                target="_blank"
+                rel="noopener"
+                class="social-link"
+              >
+                <span aria-hidden="true">📁</span> GitHub
+              </a>
+              <a href="#" class="social-link">
+                <span aria-hidden="true">🌐</span> Website
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Notification System -->
+    <div
+      class="notification-container"
+      id="notificationContainer"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+
+    <!-- Confirmation Dialog -->
+    <div
+      class="dialog-overlay"
+      id="confirmDialog"
+      aria-hidden="true"
+      role="dialog"
+      aria-labelledby="dialogTitle"
+      aria-describedby="dialogMessage"
+    >
+      <div class="dialog">
+        <header class="dialog-header">
+          <h3 id="dialogTitle" class="dialog-title">Confirm Action</h3>
+          <button
+            class="dialog-close"
+            id="dialogClose"
+            aria-label="Close dialog"
+          >
+            ×
+          </button>
+        </header>
+        <div class="dialog-body">
+          <p id="dialogMessage" class="dialog-message"></p>
+        </div>
+        <footer class="dialog-footer">
+          <button class="btn secondary" id="dialogCancel">Cancel</button>
+          <button class="btn primary" id="dialogConfirm">Confirm</button>
+        </footer>
+      </div>
+    </div>
+
+    <!-- Settings Panel -->
+    <div
+      class="settings-overlay"
+      id="settingsPanel"
+      aria-hidden="true"
+      role="dialog"
+      aria-labelledby="settingsTitle"
+    >
+      <div class="settings-panel">
+        <header class="settings-header">
+          <h3 id="settingsTitle" class="settings-title">
+            <span aria-hidden="true">⚙️</span> Game Settings
+          </h3>
+          <button
+            class="settings-close"
+            id="settingsClose"
+            aria-label="Close settings"
+          >
+            ×
+          </button>
+        </header>
+        <div class="settings-body">
+          <div class="setting-group">
+            <label for="volumeSlider" class="setting-label">Music Volume</label>
+            <input
+              type="range"
+              id="volumeSlider"
+              class="volume-slider"
+              min="0"
+              max="100"
+              value="70"
+              aria-describedby="volumeValue"
+            />
+            <span id="volumeValue" class="setting-value">70%</span>
+          </div>
+
+          <div class="setting-group">
+            <label for="animationsToggle" class="setting-label"
+              >Animations</label
+            >
+            <input
+              type="checkbox"
+              id="animationsToggle"
+              class="setting-toggle"
+              checked
+            />
+            <span class="toggle-slider"></span>
+          </div>
+
+          <div class="setting-group">
+            <label for="autosaveToggle" class="setting-label">Auto-save</label>
+            <input
+              type="checkbox"
+              id="autosaveToggle"
+              class="setting-toggle"
+              checked
+            />
+            <span class="toggle-slider"></span>
+          </div>
+
+          <div class="setting-group">
+            <label for="themeSelect" class="setting-label">Theme</label>
+            <select id="themeSelect" class="theme-select">
+              <option value="dark">Dark Fantasy</option>
+              <option value="light">Light Mode</option>
+              <option value="retro">Retro Green</option>
+            </select>
+          </div>
+        </div>
+        <footer class="settings-footer">
+          <button class="btn secondary" id="resetSettings">
+            Reset Defaults
+          </button>
+          <button class="btn primary" id="saveSettings">Save Changes</button>
+        </footer>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-tips">
+          <span class="footer-tip" id="footerTip"
+            >💡 Tip: Click items in inventory to see detailed information</span
+          >
+        </div>
+        <div class="footer-info">
+          <span class="game-version">v1.0.0</span>
+          <span class="save-status" id="saveStatus">Auto-saved</span>
+        </div>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
