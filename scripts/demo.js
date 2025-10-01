@@ -1,9 +1,8 @@
-// Import all required modules at the top
-import QuestsView from "./views/quests.js";
-import InventoryView from "./views/inventory.js";
-import BattleView, { initBattle } from "./views/battle.js";
-import ShopView from "./views/shop.js";
-import { playerInventory } from "./items.js";
+import QuestsView from "../views/questsView.js";
+import InventoryView from "../views/inventory.js";
+import BattleView, { initBattle } from "../views/battle.js";
+import ShopView from "../views/shop.js";
+import { playerInventory } from "../data/item.js";
 
 // === Game State Management ===
 const stats = {
@@ -22,7 +21,7 @@ const musicStatus = document.getElementById("musicStatus");
 
 // === Audio System ===
 let musicOn = false;
-let audio = new Audio("assets/music.mp3");
+let audio = new Audio("assets/audio/bgm.mp3");
 audio.loop = true;
 audio.volume = 0.7; // Set to 70% volume by default
 
@@ -47,9 +46,7 @@ function setupControls() {
   const exitBtn = document.getElementById("exitBtn");
   if (exitBtn) {
     exitBtn.addEventListener("click", () => {
-      // Clear all local storage data
       localStorage.clear();
-      // Navigate to home page
       window.location.href = "index.html";
     });
   }
@@ -86,7 +83,6 @@ function updateBars() {
     const mpPercent = (stats.mp.current / stats.mp.max) * 100;
     const expPercent = (stats.exp.current / stats.exp.max) * 100;
 
-    // Update the width of the stat bars
     const hpBar = document.getElementById("hp-bar");
     const mpBar = document.getElementById("mp-bar");
     const expBar = document.getElementById("exp-bar");
@@ -95,7 +91,6 @@ function updateBars() {
     if (mpBar) mpBar.style.width = mpPercent + "%";
     if (expBar) expBar.style.width = expPercent + "%";
 
-    // Update the text values
     const hpText = document.getElementById("stat-hp");
     const mpText = document.getElementById("stat-mp");
     const expText = document.getElementById("stat-exp");
@@ -104,19 +99,14 @@ function updateBars() {
     if (mpText) mpText.textContent = `${stats.mp.current}/${stats.mp.max}`;
     if (expText) expText.textContent = `${stats.exp.current}/${stats.exp.max}`;
 
-    // Update ARIA values for accessibility
     updateAriaValues();
   } catch (error) {
     console.error("Error updating bars:", error);
   }
 }
 
-// Update ARIA attributes for accessibility
 function updateAriaValues() {
-  // Get all progress bars
   const progressBars = document.querySelectorAll('[role="progressbar"]');
-
-  // Update each bar's ARIA attributes
   progressBars.forEach((bar) => {
     const type = bar.id.includes("hp")
       ? "hp"
@@ -145,12 +135,9 @@ function showNotification(message, type = "normal") {
 
   container.appendChild(notification);
 
-  // Remove notification after 4 seconds
   setTimeout(() => {
     if (notification.parentNode) {
       notification.classList.add("fade-out");
-
-      // Remove from DOM after animation completes
       setTimeout(() => {
         if (notification.parentNode) {
           notification.parentNode.removeChild(notification);
@@ -185,12 +172,11 @@ class FooterTips {
   static startRotation() {
     setInterval(() => {
       this.showNextTip();
-    }, 10000); // Change tip every 10 seconds
+    }, 10000);
   }
 
   static showNextTip() {
     this.tipElement.style.opacity = "0";
-
     setTimeout(() => {
       this.currentTip = (this.currentTip + 1) % this.tips.length;
       this.tipElement.textContent = this.tips[this.currentTip];
@@ -200,11 +186,10 @@ class FooterTips {
 }
 
 // === Router and Views ===
-// Check if tutorial is completed
 let tutorialDone = localStorage.getItem("tutorialDone") === "true";
 
-// Dashboard view
 function DashboardView() {
+  console.log("Dashboard view loaded"); // Debug log
   return `
     <section class="dashboard">
       <h2>📋 Dashboard</h2>
@@ -215,11 +200,15 @@ function DashboardView() {
         <li>⚔️ Battle - Fight enemies for EXP</li>
         <li>🛒 Shop - Buy & sell items</li>
       </ul>
+      ${
+        !tutorialDone
+          ? '<button id="skipTutorial" class="btn btn-secondary">Skip Tutorial</button>'
+          : ""
+      }
     </section>
   `;
 }
 
-// Dialog view for tutorial
 function DialogView() {
   return `
     <section class="dialog-container">
@@ -255,7 +244,6 @@ function DialogView() {
   `;
 }
 
-// Router table
 const routes = {
   "": () => (tutorialDone ? DashboardView() : DialogView()),
   quests: QuestsView,
@@ -264,42 +252,53 @@ const routes = {
   shop: ShopView,
 };
 
-// Router function
 function router() {
   const hash = window.location.hash.replace("#", "");
   const view = routes[hash] || routes[""];
 
+  console.log("Current hash:", hash); // Debug log
+  console.log("Tutorial done:", tutorialDone); // Debug log
+
   if (gameContent) {
     gameContent.innerHTML = view();
 
-    // Initialize specific view functionality
     if (hash === "battle") {
       initBattle(1);
     }
 
-    // Handle tutorial dialog button
+    // Handle tutorial completion
     if (!tutorialDone && hash === "") {
       const btn = document.getElementById("dialogNextBtn");
+      const skipBtn = document.getElementById("skipTutorial");
+
       if (btn) {
         btn.addEventListener("click", () => {
           tutorialDone = true;
           localStorage.setItem("tutorialDone", "true");
-          router(); // Re-render to dashboard
+          router();
+        });
+      }
+
+      if (skipBtn) {
+        skipBtn.addEventListener("click", () => {
+          tutorialDone = true;
+          localStorage.setItem("tutorialDone", "true");
+          router();
         });
       }
     }
 
-    // Add a back button event listener to each view
     const backBtn = document.getElementById("backButton");
     if (backBtn) {
       backBtn.addEventListener("click", () => {
         window.location.hash = "";
       });
     }
+  } else {
+    console.error("gameContent element not found!"); // Debug log
   }
 }
 
-// Setup navigation buttons
 function setupNavButtons() {
   const navButtons = {
     questBtn: "quests",
@@ -308,51 +307,30 @@ function setupNavButtons() {
     shopBtn: "shop",
   };
 
-  // Add click handlers to each navigation button
   Object.entries(navButtons).forEach(([buttonId, route]) => {
     const button = document.getElementById(buttonId);
     if (button) {
       button.addEventListener("click", () => {
-        // Toggle if already on this route
         if (window.location.hash === `#${route}`) {
           window.location.hash = "";
         } else {
-          window.location.hash = route;
+          window.location.hash = `#${route}`; // ✅ FIXED
         }
       });
     }
   });
 }
 
-// Listen for hash changes
 window.addEventListener("hashchange", router);
 
-// Theme toggle functionality
-document.getElementById("themeBtn")?.addEventListener("click", () => {
-  document.body.classList.toggle("light-theme");
-  localStorage.setItem(
-    "theme",
-    document.body.classList.contains("light-theme") ? "light" : "dark"
-  );
-});
-
-// Apply saved theme on load
-if (localStorage.getItem("theme") === "light") {
-  document.body.classList.add("light-theme");
-}
-
-// Save data periodically
 setInterval(() => {
   try {
     localStorage.setItem("playerStats", JSON.stringify(stats));
     localStorage.setItem("playerInventory", JSON.stringify(playerInventory));
 
-    // Update save status
     const saveStatus = document.getElementById("saveStatusText");
     if (saveStatus) {
       saveStatus.textContent = "Auto-saved";
-
-      // Flash the save text for visual feedback
       saveStatus.classList.add("save-flash");
       setTimeout(() => {
         saveStatus.classList.remove("save-flash");
@@ -361,4 +339,4 @@ setInterval(() => {
   } catch (error) {
     console.error("Error saving game data:", error);
   }
-}, 60000); // Save every minute
+}, 60000);
