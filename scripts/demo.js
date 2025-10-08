@@ -84,6 +84,9 @@ async function loadViews() {
   }
 }
 
+// Import footer functionality
+import { FooterTips } from './footer.js';
+
 // Initialize UI components when DOM is fully loaded
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("DOM loaded, initializing game...");
@@ -99,9 +102,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   
   // Initialize router
   setupRouter();
-  
-  // Initial route
-  router();
   
   // Setup footer tips
   new FooterTips();
@@ -306,41 +306,6 @@ function showNotification(message, type = "normal") {
       }, 300);
     }
   }, 4000);
-}
-
-// === Footer Tips System ===
-class FooterTips {
-  constructor() {
-    this.tips = [
-      "💡 Tip: Click items in your inventory to see details",
-      "⚔️ Tip: Battle enemies to gain experience and gold",
-      "🛒 Tip: Visit the shop to buy better equipment",
-      "📜 Tip: Complete quests for valuable rewards",
-      "🎵 Tip: Toggle music with the music button",
-      "💾 Tip: Your progress is automatically saved"
-    ];
-    
-    this.currentTip = 0;
-    this.tipElement = document.getElementById("footerTip");
-    
-    if (this.tipElement) {
-      this.startRotation();
-    }
-  }
-
-  startRotation() {
-    // Change tip every 10 seconds
-    setInterval(() => {
-      this.showNextTip();
-    }, 10000);
-  }
-
-  showNextTip() {
-    if (this.tipElement) {
-      this.currentTip = (this.currentTip + 1) % this.tips.length;
-      this.tipElement.textContent = this.tips[this.currentTip];
-    }
-  }
 }
 
 // === Router and Views ===
@@ -582,11 +547,9 @@ function loadGame() {
   return false;
 }
 
+// Update save status using FooterTips
 function updateSaveStatus(message) {
-  const statusElement = document.getElementById("saveStatusText");
-  if (statusElement) {
-    statusElement.textContent = message;
-  }
+  FooterTips.updateSaveStatus(message);
 }
 
 // Auto-save every 30 seconds
