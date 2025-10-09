@@ -1,0 +1,299 @@
+/* ===== BACKGROUND ===== */
+.background {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  image-rendering: pixelated;
+}
+
+.bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-overlay);
+  /* Remove blur for pixel aesthetic */
+  image-rendering: pixelated;
+}
+
+/* ===== TOP NAVIGATION ===== */
+.top-nav {
+  position: fixed;
+  top: 32px; /* Use even pixel values */
+  right: 32px;
+  z-index: 100;
+  display: flex;
+  gap: 8px; /* Even pixel values */
+}
+
+.nav-btn {
+  width: 56px;
+  height: 56px;
+  background: rgba(10, 10, 18, 0.8);
+  border: 2px solid var(--border);
+  border-radius: 0; /* Remove border radius for pixel look */
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  /* Pixel-style border */
+  box-shadow: 2px 2px 0 0 var(--border-dark),
+    inset -2px -2px 0 0 var(--border-light);
+}
+
+.nav-btn:hover {
+  background: rgba(20, 20, 35, 0.9);
+  border-color: var(--border-hover);
+  transform: translateY(-4px);
+}
+
+.nav-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.nav-btn.active {
+  background: rgba(99, 102, 241, 0.7);
+  border-color: var(--accent);
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  stroke-width: 2px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* ===== TOOLTIP ===== */
+.nav-btn[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-dark);
+  color: var(--text-primary);
+  font-family: var(--font-primary); /* Use pixel font */
+  font-size: 0.6rem; /* Smaller for pixel font */
+  padding: 6px 8px;
+  border: 2px solid var(--border);
+  border-radius: 0; /* Square for pixel look */
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.2s steps(5); /* Stepped transition */
+  white-space: nowrap;
+  /* Pixel-style border */
+  box-shadow: 2px 2px 0 0 var(--border-dark),
+    inset -2px -2px 0 0 var(--border-light);
+}
+
+.nav-btn:hover::after {
+  opacity: 1;
+  bottom: -40px;
+}
+
+/* ===== MAIN CONTENT ===== */
+.main-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px; /* Even pixel values */
+  position: relative;
+  z-index: 1;
+}
+
+.content-center {
+  text-align: center;
+  max-width: 600px;
+  width: 100%;
+}
+
+/* ===== TITLE SECTION ===== */
+.title-section {
+  margin-bottom: 32px;
+}
+
+.game-title {
+  font-family: var(--font-primary);
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 700;
+  color: var(--primary); /* Use game's primary color */
+  margin-bottom: 16px;
+  letter-spacing: 2px;
+  line-height: 1.2;
+  text-shadow: 4px 4px 0 rgba(0, 0, 0, 0.8);
+  animation: pulse 3s infinite steps(5);
+}
+
+.title-underline {
+  width: 80px;
+  height: 4px; /* Even pixel value */
+  /* Pixelated underline */
+  background: repeating-linear-gradient(
+    90deg,
+    var(--accent),
+    var(--accent) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+  margin: 0 auto;
+}
+
+/* ===== DESCRIPTION ===== */
+.game-description {
+  font-family: var(--font-secondary);
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  margin-bottom: 48px; /* Even pixel value */
+  line-height: 1.6;
+  font-weight: 400;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* ===== ENTER GAME BUTTON ===== */
+.enter-game-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  background: var(--primary);
+  color: var(--bg-dark);
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  /* Remove border-radius */
+  border-radius: 0;
+  /* Pixel-perfect border */
+  border: 2px solid var(--border-dark);
+  box-shadow: inset 0 -4px 0 0 var(--border-dark),
+    inset 4px 0 0 0 var(--border-light), inset 0 4px 0 0 var(--border-light);
+}
+
+.enter-game-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  /* Remove gradient for more pixelated look */
+  background: transparent;
+}
+
+.enter-game-btn:hover {
+  background: var(--accent);
+  transform: translateY(-4px);
+  box-shadow: inset 0 -4px 0 0 #cc3030,
+    /* Darker shade of accent */ inset 4px 0 0 0 #ff5c5c,
+    /* Lighter shade of accent */ inset 0 4px 0 0 #ff5c5c,
+    0 8px 0 0 rgba(0, 0, 0, 0.5);
+}
+
+.enter-game-btn:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+/* Pixel-style shine animation */
+.enter-game-btn::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    120deg,
+    transparent,
+    transparent 20%,
+    rgba(255, 255, 255, 0.3) 20%,
+    rgba(255, 255, 255, 0.3) 40%,
+    transparent 40%
+  );
+  opacity: 0;
+  transition: opacity 0.3s steps(3);
+}
+
+.enter-game-btn:hover::after {
+  opacity: 1;
+  animation: pixelShine 2s infinite steps(10);
+}
+
+@keyframes pixelShine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.btn-text {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.btn-arrow {
+  width: 20px;
+  height: 20px;
+  transition: transform 0.2s steps(3);
+}
+
+.enter-game-btn:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+/* Add pixel-style animations */
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Starry background effect */
+.stars {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  animation: twinkle 2s infinite steps(2);
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+}
